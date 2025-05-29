@@ -6,23 +6,35 @@ import {
   SelectValue,
   SelectWithLabel
 } from '@/components/ui/select'
-import { CommandIcon, WandSparklesIcon } from 'lucide-react'
+import { CommandIcon, WandSparklesIcon, ClipboardCopyIcon } from 'lucide-react'
 import { Textarea } from './components/ui/textarea'
 import { useState } from 'react'
 
 function App(): JSX.Element {
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
+  const [response, setResponse] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setPrompt(e.target.value)
   }
 
-  const handleEnhance = () => {
+  const handleEnhance = (): void => {
     setLoading(true)
+    setResponse(null)
     setTimeout(() => {
       setLoading(false)
+      setResponse('This is a simulated enhanced response for your prompt!')
     }, 1000)
+  }
+
+  const handleCopy = (): void => {
+    if (response) {
+      navigator.clipboard.writeText(response)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    }
   }
 
   return (
@@ -37,6 +49,19 @@ function App(): JSX.Element {
           value={prompt}
           onChange={handleChange}
         />
+        {response && !loading && (
+          <div className="mt-2 bg-muted/40 border border-muted rounded p-3 flex items-center justify-between gap-2">
+            <span className="text-xs text-foreground break-words flex-1">{response}</span>
+            <button
+              className="ml-2 px-2 py-1 rounded bg-accent text-accent-foreground text-xs flex items-center gap-1 hover:bg-accent/80 transition"
+              onClick={handleCopy}
+              aria-label="Copy response"
+            >
+              <ClipboardCopyIcon className="w-4 h-4" />
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        )}
         <div className="flex w-full gap-4 app-region-no-drag items-end justify-between mt-4">
           <SelectWithLabel
             label={
